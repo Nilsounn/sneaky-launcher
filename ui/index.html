@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="UTF-8"><title>Sneaky</title>
+<script src="themes.js"></script>
+<style>
+:root{--bg:#0b0713;--panel:#130d21;--panel2:#1b1330;--hover:#241a3d;--line:rgba(255,255,255,.07);--line2:rgba(255,255,255,.12);--txt:#ece6f8;--dim:#8d82a8;--acc:#9b6bff;--acc2:#c8abff;--ok:#c4e600;--bad:#ff6b8f;--r:14px;--ink:#07040d;--acc-rgb:155,107,255;--play-a:#d2f21a;--play-b:#9fd400;--play-ink:#18230a;--play-rgb:196,230,0;--splash:#2a1560;--hero-a:#2a1560;--hero-b:#150b2c;--glow:255,110,30;--logo-filter:brightness(1)}
+*{box-sizing:border-box;margin:0}
+body{height:100vh;display:flex;flex-direction:column;background:radial-gradient(900px 500px at 8% -10%,rgba(var(--acc-rgb),.16),transparent 60%),radial-gradient(700px 500px at 100% 110%,rgba(var(--play-rgb),.05),transparent 60%),var(--bg);color:var(--txt);font:14px/1.45 "Segoe UI Variable","Segoe UI",system-ui,sans-serif;overflow:hidden;position:relative;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit}
+#bar{height:34px;display:flex;align-items:center;gap:8px;padding:0 0 0 16px;-webkit-app-region:drag;position:relative;z-index:3}
+#bar img{width:20px;height:20px;object-fit:contain;image-rendering:pixelated}#bar b{flex:1;font-size:12px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+#bar button{-webkit-app-region:no-drag;width:44px;height:34px;border:0;background:none;color:var(--dim);font-size:14px;cursor:pointer;transition:background .15s,color .15s}
+#bar button:hover{background:rgba(255,255,255,.07);color:var(--txt)}#bar #x:hover{background:#d0305a;color:#fff}
+main{flex:1;display:grid;grid-template-columns:248px minmax(0,1fr);gap:14px;padding:4px 14px 14px;min-height:0;position:relative;z-index:1}
+/* sidebar */
+aside{display:flex;flex-direction:column;gap:6px;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px 14px 14px;position:relative}
+aside .logo{width:100%;padding:0 6px;margin-bottom:2px;filter:var(--logo-filter)}
+.ver{text-align:center;color:var(--dim);font-size:12px;margin-bottom:16px}
+.nav{display:flex;align-items:center;gap:12px;width:100%;height:42px;padding:0 14px;background:none;border:0;border-radius:10px;color:var(--dim);font-size:14px;cursor:pointer;text-align:left;position:relative;transition:background .15s,color .15s}
+.nav svg{width:19px;height:19px;flex:none;fill:currentColor}.nav span{flex:1}
+.nav:hover{background:var(--panel2);color:var(--txt)}
+.nav.on{background:rgba(var(--acc-rgb),.14);color:var(--acc2)}
+.nav.on::before{content:"";position:absolute;left:-14px;top:11px;bottom:11px;width:3px;border-radius:0 3px 3px 0;background:var(--acc)}
+#user{margin-top:auto;display:flex;align-items:center;gap:10px;padding:8px;background:var(--panel2);border:1px solid var(--line);border-radius:12px;cursor:pointer;transition:border-color .15s}
+#user:hover{border-color:var(--line2)}
+#user img{width:34px;height:34px;image-rendering:pixelated;background:var(--ink);border-radius:8px}
+#user small{display:block;font-size:11px;color:var(--dim)}
+#user .who{flex:1;min-width:0;line-height:1.2}#user .who b{display:block;font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#menu{flex:none;width:34px;height:34px;display:flex;align-items:center;justify-content:center;background:none;border:0;border-radius:8px;color:var(--dim);cursor:pointer;transition:background .15s,color .15s}#menu svg{width:18px;height:18px;fill:currentColor}
+#menu:hover{background:var(--hover);color:var(--txt)}
+label{color:var(--dim);font-size:12px;font-weight:500}
+input[type=text]{width:100%;padding:10px 12px;background:var(--ink);border:1px solid var(--line2);border-radius:10px;outline:0;color:var(--txt);font:inherit;transition:border-color .15s,box-shadow .15s}
+input[type=text]:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(var(--acc-rgb),.18)}
+input::placeholder{color:color-mix(in srgb,var(--dim) 65%,var(--bg))}
+.small{padding:8px 14px;background:var(--panel2);border:1px solid var(--line2);border-radius:9px;color:var(--txt);font-size:13px;cursor:pointer;transition:background .15s,border-color .15s}.small:hover{background:var(--hover);border-color:var(--acc)}
+/* content */
+section{min-width:0;display:flex;flex-direction:column;min-height:0;background:var(--panel);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+section h2{font-size:20px;font-weight:600;letter-spacing:-.01em;color:var(--txt);padding:20px 28px 0}
+.view{display:none;flex:1;min-height:0;overflow:auto}.view.on{display:block}
+#home{padding:18px 28px 28px}
+.top{display:flex;gap:28px;align-items:flex-start}
+.left{width:260px;flex:none}
+#play{display:flex;align-items:center;gap:10px;width:100%;height:56px;padding:0 18px;background:linear-gradient(135deg,var(--play-a),var(--play-b));border:0;border-radius:14px;color:var(--play-ink);font-size:16px;font-weight:700;letter-spacing:.01em;cursor:pointer;box-shadow:0 8px 24px -8px rgba(var(--play-rgb),.45);transition:transform .15s,box-shadow .15s,filter .15s}
+#play svg{width:26px;height:26px;fill:currentColor;flex:none;image-rendering:pixelated}#play span{flex:1;text-align:center;padding-right:26px}
+#play:hover{transform:translateY(-1px);box-shadow:0 12px 28px -8px rgba(var(--play-rgb),.6)}#play:active{transform:none}#play:disabled{filter:grayscale(.7) brightness(.7);cursor:wait;transform:none;box-shadow:none}
+#play.stop{background:linear-gradient(135deg,#ff6b8f,#d0305a);color:#fff;box-shadow:0 8px 24px -8px rgba(255,107,143,.45)}
+.ramw{margin-top:24px}.ramw label{display:block;margin-bottom:10px}
+.slider{position:relative;padding:8px 8px 32px;background:var(--panel2);border:1px solid var(--line);border-radius:12px}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:rgba(255,255,255,.1);border-radius:3px;outline:0;display:block}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:20px;background:var(--acc2);border:0;border-radius:6px;cursor:pointer;box-shadow:0 0 0 4px rgba(var(--acc-rgb),.2);transition:box-shadow .15s}
+input[type=range]:hover::-webkit-slider-thumb{box-shadow:0 0 0 6px rgba(var(--acc-rgb),.25)}
+#bub{position:absolute;top:36px;transform:translateX(-50%);background:var(--acc);color:#fff;font-size:11px;font-weight:600;padding:2px 8px;border-radius:6px;white-space:nowrap;pointer-events:none}
+.warn{margin-top:12px;font-size:11px;line-height:1.5;color:color-mix(in srgb,var(--dim) 75%,var(--bg))}
+.hero{flex:1;min-width:0;aspect-ratio:16/9;max-height:330px;border-radius:16px;overflow:hidden;border:1px solid var(--line);background:linear-gradient(135deg,var(--hero-a),var(--hero-b));position:relative}
+.hero::before{content:"";position:absolute;inset:0;background:url(../assets/Slittle.png) center/50% no-repeat;opacity:.35;filter:var(--logo-filter)}
+.hero img{position:relative;width:100%;height:100%;object-fit:cover;display:block}
+.news{margin-top:32px}
+.news h3{font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--acc2)}
+.news h4{font-size:22px;font-weight:600;letter-spacing:-.01em;margin:8px 0 14px}
+.news .card{white-space:pre-wrap;max-width:860px;padding:18px 20px;background:var(--panel2);border:1px solid var(--line);border-radius:14px;color:color-mix(in srgb,var(--txt) 80%,transparent);line-height:1.6}
+#mods{padding:20px 28px;color:var(--dim)}
+#cv{display:none;flex-direction:column;flex:1;min-height:0;padding:14px 20px 0}#cv.on{display:flex}
+#con{flex:1;overflow:auto;padding:14px 16px;margin-bottom:14px;background:var(--ink);border:1px solid var(--line);border-radius:12px;font:12px/1.55 "Cascadia Mono",Consolas,monospace;color:color-mix(in srgb,var(--txt) 74%,transparent);white-space:pre-wrap;word-break:break-all;user-select:text}
+#con .e{color:var(--bad)}#con .w{color:#ffd37a}#con .s{color:var(--acc2)}
+#con:empty::before{content:"La console de Minecraft s’affichera ici.";color:var(--dim)}
+#pw{height:34px;display:none;position:relative;background:var(--ink);flex:none;border-top:1px solid var(--line)}#pw i{position:absolute;inset:0 auto 0 0;width:0;background:linear-gradient(90deg,rgba(var(--acc-rgb),.55),rgba(200,171,255,.55));transition:width .15s}
+#pw span{position:relative;display:block;line-height:34px;padding:0 28px;font-size:12px}
+::-webkit-scrollbar{width:8px}::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:4px}::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.22)}::-webkit-scrollbar-track{background:transparent}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.modal{display:none;position:fixed;inset:0;z-index:20;background:rgba(5,2,12,.7);backdrop-filter:blur(6px);align-items:center;justify-content:center}.modal.open{display:flex}
+.card2{width:420px;max-width:92vw;background:var(--panel);border:1px solid var(--line2);border-radius:20px;padding:26px;display:flex;flex-direction:column;gap:14px;position:relative;box-shadow:0 30px 80px -20px #000}
+.card2 h3{font-size:19px;font-weight:600}.card2 .x{position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:8px;background:none;border:0;color:var(--dim);font-size:15px;cursor:pointer}.card2 .x:hover{background:var(--hover);color:var(--txt)}
+.msbtn{display:flex;align-items:center;justify-content:center;gap:12px;height:48px;background:#fff;color:#1b1b1b;border:0;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;transition:background .15s}.msbtn:hover{background:#e9e1f7}.msbtn svg{width:18px;height:18px}
+.msbtn:disabled,.small:disabled{opacity:.5;cursor:wait}
+.or{display:flex;align-items:center;gap:12px;color:var(--dim);font-size:12px}.or::before,.or::after{content:"";flex:1;height:1px;background:var(--line2)}
+.uuid{font:12px "Cascadia Mono",Consolas,monospace;color:var(--dim);min-height:16px;word-break:break-all}
+.err{color:var(--bad);font-size:13px;min-height:16px}
+.btn2{height:44px;background:var(--acc);border:0;border-radius:12px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;transition:filter .15s}.btn2:hover{filter:brightness(1.12)}.btn2:disabled{opacity:.5}
+.sec .btn2,.card2>.btn2#f{background:var(--panel2);border:1px solid var(--line2);font-weight:500}.sec .btn2:hover,.card2>.btn2#f:hover{background:var(--hover);filter:none}
+.mtabs{display:flex;gap:6px;align-items:center;margin-bottom:18px;flex-wrap:wrap}
+.tab{padding:8px 16px;background:none;border:1px solid transparent;border-radius:999px;color:var(--dim);cursor:pointer;transition:background .15s,color .15s}.tab:hover{color:var(--txt)}.tab.on{background:rgba(var(--acc-rgb),.16);color:var(--acc2)}
+#q{flex:1;min-width:180px;width:auto;margin-left:8px}
+.mcols{display:grid;grid-template-columns:1fr 320px;gap:24px;align-items:start}
+.col h5{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin-bottom:10px}
+.item{display:flex;gap:12px;align-items:center;padding:10px 12px;margin-bottom:8px;background:var(--panel2);border:1px solid var(--line);border-radius:12px;transition:border-color .15s}.item:hover{border-color:var(--line2)}
+.item img,.item .ph{width:44px;height:44px;flex:none;background:var(--ink);border-radius:10px}
+.item .tx{flex:1;min-width:0}.item .tx b{display:block;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.item .tx i{display:block;font-style:normal;font-size:12px;color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.item .tx p{font-size:12px;color:color-mix(in srgb,var(--txt) 68%,transparent);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-top:2px}
+.item .small{flex:none;min-width:90px}
+.item .lock{font-size:11px;color:var(--acc2);background:rgba(var(--acc-rgb),.14);padding:3px 8px;border-radius:999px;flex:none}
+.hint{font-size:12px;color:var(--dim);margin:10px 0;line-height:1.5}.msg{color:var(--dim);padding:14px 4px;font-size:13px}.msg.e{color:var(--bad)}
+.right{flex:1;min-width:0;display:flex;flex-direction:column;gap:14px}
+.srv{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.sh{display:flex;align-items:center;gap:10px;font-size:15px}.sh b{font-weight:600}.sh .pl{margin-left:auto;font-size:13px;color:var(--dim)}
+.dot{width:9px;height:9px;border-radius:50%;background:#6b6280;flex:none}.dot.on{background:#7be04a;box-shadow:0 0 0 4px rgba(123,224,74,.16),0 0 10px #7be04a}.dot.off{background:#e0405a;box-shadow:0 0 0 4px rgba(224,64,90,.14)}
+.slive{display:flex;flex-wrap:wrap;gap:6px}.slive:empty{display:none}.chip{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--panel);border:1px solid var(--line);color:var(--dim)}.chip.ok{color:#7be0a4;border-color:#7be0a444}.chip.mid{color:#ffd27a;border-color:#ffd27a44}.chip.bad{color:#ff8a8a;border-color:#ff8a8a44}
+.sm{font-size:12px;line-height:1.5;color:var(--dim)}.sm:empty{display:none}
+.sr{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.sr code{font:12px "Cascadia Mono",Consolas,monospace;color:var(--acc2);background:var(--ink);border:1px solid var(--line);border-radius:9px;padding:8px 12px;flex:1;min-width:150px;overflow:hidden;text-overflow:ellipsis}
+.dc{display:flex;align-items:center;gap:8px;padding:8px 14px;background:#5865f2;border:0;border-radius:9px;color:#fff;font-size:13px;cursor:pointer;transition:filter .15s}.dc:hover{filter:brightness(1.12)}.dc svg{width:16px;height:16px;fill:#fff}
+.right .hero{flex:none;width:100%;max-height:none}
+.sec{display:flex;flex-direction:column;gap:8px}.accl{font-size:14px;padding:11px 14px;background:var(--ink);border:1px solid var(--line);border-radius:10px}.accl small{color:var(--dim);font-size:12px}
+.row2{display:flex;gap:8px}.row2 .btn2{flex:1;height:40px;font-size:13px}
+label.sw{display:flex;align-items:center;gap:12px;color:var(--txt);font-size:14px;cursor:pointer}
+.sw input{position:absolute;opacity:0}.knob{width:40px;height:22px;background:var(--ink);border:1px solid var(--line2);border-radius:11px;position:relative;flex:none;transition:background .15s,border-color .15s}
+.knob::after{content:"";position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:var(--dim);transition:transform .15s,background .15s}
+.sw input:checked+.knob{background:var(--acc);border-color:var(--acc)}.sw input:checked+.knob::after{transform:translateX(18px);background:#fff}.sw input:focus-visible+.knob{outline:2px solid var(--acc2);outline-offset:2px}
+.hint2{font-size:12px;color:var(--dim)}
+/* ---- splash de démarrage ---- */
+#splash{position:fixed;inset:0;z-index:100;background:radial-gradient(ellipse at center,var(--splash) 0%,var(--bg) 70%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;transition:opacity .7s ease,visibility .7s}
+#splash.out{opacity:0;visibility:hidden;pointer-events:none}
+#splash .lg{width:min(300px,42vw);opacity:0;transform:scale(.6);animation:spLogo 1.3s cubic-bezier(.2,.9,.25,1.2) .2s forwards,spGlow 2.4s ease-in-out 1.5s infinite alternate}
+#splash .t1{font-size:40px;font-weight:700;letter-spacing:.02em;color:#fff;opacity:0;transform:translateY(14px);animation:spUp .8s ease 1.2s forwards}
+#splash .t1 em{font-style:normal;color:var(--acc2)}
+#splash .t2{font-size:18px;color:var(--acc2);opacity:0;transform:translateY(14px);animation:spUp .8s ease 1.8s forwards;margin-top:6px}
+#splash .t3{font-size:14px;color:var(--dim);opacity:0;transform:translateY(14px);animation:spUp .8s ease 2.4s forwards}
+#splash .skip{position:absolute;bottom:14px;font-size:12px;color:var(--dim);opacity:0;animation:spUp .6s ease 3s forwards}
+#splash .ember{position:absolute;bottom:-10px;width:6px;height:6px;border-radius:50%;opacity:0;animation:spEmber linear infinite}
+@keyframes spLogo{to{opacity:1;transform:scale(1)}}
+@keyframes spGlow{to{filter:drop-shadow(0 0 22px rgba(var(--glow),.6))}}
+@keyframes spUp{to{opacity:1;transform:none}}
+@keyframes spEmber{0%{opacity:0;transform:translate(0,0)}15%{opacity:.9}100%{opacity:0;transform:translate(var(--dx),-90vh)}}
+/* ---- mascotte BC ---- */
+#mascot{position:relative;width:192px;height:96px;margin:auto auto 6px;flex:none;cursor:pointer;user-select:none}
+#mascot+#user{margin-top:0}
+#mascot img{position:absolute;inset:0;width:192px;height:96px;image-rendering:pixelated;-webkit-user-drag:none}
+#mascot canvas{position:absolute;left:0;top:-24px;width:192px;height:120px;image-rendering:pixelated;pointer-events:none}
+#mascot:active img{transform:translateY(1px)}
+#mbub{position:absolute;left:50%;bottom:calc(100% + 2px);transform:translate(-50%,6px);max-width:210px;width:max-content;padding:8px 12px;background:#fff;color:#1a0836;border-radius:12px;font-size:13px;font-weight:600;text-align:center;line-height:1.25;opacity:0;pointer-events:none;transition:opacity .12s,transform .12s;z-index:5;box-shadow:0 10px 30px -8px #000}
+#mbub::after{content:"";position:absolute;left:50%;top:100%;margin-left:-6px;border:6px solid transparent;border-top-color:#fff}
+#mbub.on{opacity:1;transform:translate(-50%,0)}
+#mascot.shake img{animation:mShake .32s steps(2) 2}
+@keyframes mShake{0%{transform:translateX(-3px)}50%{transform:translateX(3px)}100%{transform:translateX(0)}}
+#mz{position:absolute;right:26px;top:-4px;pointer-events:none;font:700 13px/1 monospace;color:var(--acc2)}
+#mz i{position:absolute;font-style:normal;opacity:0;animation:mZ 3.6s linear infinite}
+#mz i:nth-child(2){animation-delay:1.2s}#mz i:nth-child(3){animation-delay:2.4s}
+@keyframes mZ{0%{opacity:0;transform:translate(0,10px) scale(.7)}20%{opacity:.9}100%{opacity:0;transform:translate(14px,-22px) scale(1.2)}}
+#mascot.up #mz{display:none}
+</style>
+<link rel="stylesheet" href="polish.css">
+<link rel="stylesheet" href="themes.css">
+</head><body>
+<div id="aurora"><i></i><i></i><i></i></div>
+
+<div id="splash" title="Cliquer pour passer">
+  <img class="lg" src="../assets/BC_logo.svg" alt="BurningCat" draggable="false">
+  <div class="t1">Sneaky<em>SMP</em></div>
+  <div class="t2">by BurningCat</div>
+  <div class="t3">depuis 2025.</div>
+  <div class="skip">cliquer pour passer</div>
+</div>
+<svg width="0" height="0" style="position:absolute"><symbol id="ico-play" viewBox="0 0 17 17" shape-rendering="crispEdges"><path d="M1 1h2v1h-2zM1 2h4v1h-4zM1 3h6v1h-6zM1 4h8v1h-8zM1 5h10v1h-10zM1 6h12v1h-12zM1 7h14v1h-14zM1 8h14v1h-14zM1 9h12v1h-12zM1 10h10v1h-10zM1 11h8v1h-8zM1 12h6v1h-6zM1 13h4v1h-4zM1 14h2v1h-2z" transform="translate(1 1)" fill="#000" opacity=".3"/><path d="M1 1h2v1h-2zM1 2h4v1h-4zM1 3h6v1h-6zM1 4h8v1h-8zM1 5h10v1h-10zM1 6h12v1h-12zM1 7h14v1h-14zM1 8h14v1h-14zM1 9h12v1h-12zM1 10h10v1h-10zM1 11h8v1h-8zM1 12h6v1h-6zM1 13h4v1h-4zM1 14h2v1h-2z" fill="currentColor"/></symbol></svg>
+<div id="bar"><img id="barlogo" src="../assets/sneaky-logo.png" alt=""><b>Sneaky</b><button id="m" aria-label="Réduire">–</button><button id="x" aria-label="Fermer" title="Fermer (reste en arrière-plan)">✕</button></div>
+<main>
+<aside>
+  <img class="logo" src="../assets/SSMP_big.png" alt="Sneaky SMP">
+  <div class="ver" id="ver"></div>
+  <button class="nav on" data-v="home"><svg><use href="#ico-play"/></svg><span>Jouer</span></button>
+  <button class="nav" data-v="mods"><svg viewBox="0 0 24 24"><path d="M22 7.5a5.5 5.5 0 0 1-7.4 5.2L6 21.3a2.1 2.1 0 0 1-3-3l8.6-8.6A5.5 5.5 0 0 1 17 2l-3.2 3.2 1.4 3.6 3.6 1.4L22 7.5z"/></svg><span>Mods &amp; Packs</span></button>
+  <button class="nav" data-v="console"><svg viewBox="0 0 24 24"><path d="M2 4h20v16H2zm3 3v10h14V7zm2 3h6v2H7z"/></svg><span>Console</span></button>
+  <div id="mascot" title="Chut… il dort"><img id="mimg" src="../assets/BCsleep.png" alt="" draggable="false"><canvas id="mfx" width="64" height="40"></canvas><div id="mz"><i>z</i><i>Z</i><i>z</i></div><div id="mbub"></div></div>
+  <div id="user"><img id="av" alt="" src=""><div class="who"><b id="name">Non connecté</b><small id="kind"></small></div><button id="menu" aria-label="Paramètres" title="Paramètres"><svg viewBox="0 0 24 24"><path d="M3 5h18v3H3zM3 10.5h18v3H3zM3 16h18v3H3z"/></svg></button></div>
+</aside>
+<section>
+  <h2 id="title">Accueil</h2>
+  <div class="view on" id="home">
+    <div class="top">
+      <div class="left">
+        <button id="play"><svg><use href="#ico-play"/></svg><span>Jouer</span></button>
+        <div class="ramw"><label for="r">RAM :</label>
+          <div class="slider"><input type="range" id="r" min="2" max="12" step="1" value="4"><div id="bub">4 go</div></div>
+          <div class="warn">/!\ - Utiliser de la ram au dessus de 12 Go peut devenir inutile / dangereux</div>
+        </div>
+      </div>
+      <div class="right"><div class="hero"><img id="hero" src="../assets/saison.png" alt="" onerror="this.style.visibility='hidden'" onload="this.style.visibility=''"></div>
+      <div class="srv">
+        <div class="sh"><span class="dot" id="dot"></span><b id="sst">Vérification…</b><span class="pl" id="sply"></span></div>
+        <div class="sm" id="smeta"></div>
+        <div class="slive" id="slive"></div>
+        <div class="sr"><code id="sip"></code><button class="small" id="cip">Copier l’IP</button><button class="dc" id="dc"><svg viewBox="0 0 24 24"><path d="M4 4h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-8l-5 4v-4H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zm4 6a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm8 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/></svg>Discord</button></div>
+      </div>
+    </div>
+    </div>
+    <div class="news"><h3>News</h3><h4 id="newsT">La saison 6 arrive !</h4><div class="card" id="newsB">Ajoute ici le texte de ta news.</div></div>
+  </div>
+  <div class="view" id="mods">
+    <div class="mtabs"><button class="tab on" data-t="mod">Mods</button><button class="tab" data-t="resourcepack">Resource Packs</button><input type="text" id="q" placeholder="Rechercher sur Modrinth…" autocomplete="off"><button class="small" id="fo">Ouvrir le dossier</button></div>
+    <div class="mcols">
+      <div class="col"><h5>Modrinth <span id="cnt"></span></h5><div id="res"></div><button class="small" id="more" style="display:none">Plus de résultats</button></div>
+      <div class="col"><h5>Installés</h5><div id="inst"></div><div class="hint" id="hint"></div></div>
+    </div>
+  </div>
+  <div id="cv"><div id="con" aria-live="off"></div></div>
+  <div id="pw"><i></i><span></span></div>
+</section>
+</main>
+<div class="modal" id="settings"><div class="card2">
+  <button class="x" id="sx" aria-label="Fermer">✕</button><h3>Paramètres</h3>
+  <div class="sec"><label>Compte Minecraft</label><div class="accl" id="sacc"></div>
+    <div class="row2"><button class="btn2" id="pacc">Changer de compte</button><button class="btn2" id="plog">Se déconnecter</button></div></div>
+  <div class="sec"><label>Général</label>
+    <label class="sw"><input type="checkbox" id="auto"><span class="knob"></span><span>Lancer Sneaky au démarrage de l’ordinateur</span></label>
+    <div class="hint2">Pris en compte dans la version installée (.exe).</div></div>
+  <button class="btn2" id="f">Ouvrir le dossier du jeu</button>
+</div></div>
+<div class="modal" id="login"><div class="card2">
+  <button class="x" id="lx" aria-label="Fermer">✕</button><h3>Connexion</h3>
+  <button class="msbtn" id="ms"><svg viewBox="0 0 21 21"><rect width="10" height="10" fill="#f25022"/><rect x="11" width="10" height="10" fill="#7fba00"/><rect y="11" width="10" height="10" fill="#00a4ef"/><rect x="11" y="11" width="10" height="10" fill="#ffb900"/></svg>Se connecter avec Microsoft</button>
+  <div class="or">ou</div>
+  <label for="u">Mode hors-ligne (sans compte Microsoft)</label>
+  <input type="text" id="u" maxlength="16" placeholder="Ton pseudo" autocomplete="off">
+  <div class="uuid" id="uuid"></div>
+  <button class="btn2" id="off">Continuer hors-ligne</button>
+  <div class="err" id="lerr"></div>
+</div></div>
+
+<script>
+const $=i=>document.getElementById(i),con=$('con'),play=$('play'),r=$('r'),titles={home:'Accueil',mods:'Mods & Resource Packs',console:'Console Minecraft'};
+let st='idle',account=null,mt='mod',hits=[],total=0,inst={mod:[],resourcepack:[]},modsInit=false,timer=0,busyMod=false;
+$('m').onclick=()=>sneaky.win('min');$('x').onclick=()=>sneaky.win('close');
+$('f').onclick=()=>sneaky.folder();$('fo').onclick=()=>sneaky.folder(mt);
+function show(v){document.querySelectorAll('.nav').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+ $('home').classList.toggle('on',v==='home');$('mods').classList.toggle('on',v==='mods');$('cv').classList.toggle('on',v==='console');$('title').textContent=titles[v];
+ if(v==='console')con.scrollTop=con.scrollHeight;if(v==='home')bub();
+ if(v==='mods'){loadInst();if(!modsInit){modsInit=true;search(true)}}}
+document.querySelectorAll('.nav').forEach(b=>b.onclick=()=>show(b.dataset.v));
+/* ---- compte ---- */
+function who(){const a=account;$('name').textContent=a?a.name:'Non connecté';$('kind').textContent=a?(a.type==='microsoft'?'Microsoft':'Hors-ligne'):'Clique pour te connecter';
+ const av=$('av');if(a){av.style.visibility='visible';av.src='https://minotar.net/avatar/'+encodeURIComponent(a.name)+'/38'}else av.style.visibility='hidden';
+ $('plog').style.display=a?'block':'none';$('sacc').replaceChildren(document.createTextNode(a?a.name:'Non connecté'),...(a?[el('small','',' · '+(a.type==='microsoft'?'Microsoft':'Hors-ligne'))]:[]))}
+$('av').onerror=()=>{$('av').onerror=null;$('av').src='data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='};
+function openSettings(){$('settings').classList.add('open')}
+$('menu').onclick=openSettings;$('sx').onclick=()=>$('settings').classList.remove('open');
+$('settings').onclick=e=>{if(e.target===$('settings'))$('settings').classList.remove('open')};
+$('auto').onchange=async()=>{$('auto').checked=await sneaky.setAutostart($('auto').checked)};
+function openLogin(){$('settings').classList.remove('open');$('lerr').textContent='';$('uuid').textContent='';$('u').value=account&&account.type==='offline'?account.name:'';upd();$('lx').style.display=account?'block':'none';$('login').classList.add('open');$('u').focus()}
+$('pacc').onclick=openLogin;$('user').onclick=e=>{if(!account&&!e.target.closest('#menu'))openLogin()};
+$('lx').onclick=()=>$('login').classList.remove('open');
+$('plog').onclick=async()=>{await sneaky.authLogout();account=null;who();openLogin()};
+async function upd(){const n=$('u').value.trim(),id=++upd.id||(upd.id=1);const u=await sneaky.authUuid(n);if(id===upd.id)$('uuid').textContent=u?'UUID : '+u:(n?'Pseudo invalide (3 à 16 caractères : lettres, chiffres, _)':'')}
+$('u').oninput=upd;$('u').onkeydown=e=>{if(e.key==='Enter')$('off').click()};
+function done(a){account=a;who();$('login').classList.remove('open');log('[Sneaky] Connecté : '+a.name+' ('+(a.type==='microsoft'?'Microsoft':'hors-ligne')+')')}
+$('off').onclick=async()=>{$('lerr').textContent='';const a=await sneaky.authOffline($('u').value);if(a.error)$('lerr').textContent=a.error;else done(a)};
+$('ms').onclick=async()=>{const b=$('ms');b.disabled=true;$('lerr').textContent='';const a=await sneaky.authMs();b.disabled=false;if(a.error)$('lerr').textContent=a.error;else done(a)};
+/* ---- RAM ---- */
+function bub(){const p=(r.value-r.min)/(r.max-r.min),w=r.clientWidth-12;$('bub').style.left=(8+6+p*w)+'px';r.style.setProperty('--p',(p*100)+'%');$('bub').textContent=r.value+' go'}
+r.oninput=bub;addEventListener('resize',bub);
+/* ---- console ---- */
+const SPAM=/^[\w$.\-]+(\/[\w$.\-]+)+\.\w{2,6}$/,MAXL=2000;
+function log(t){const near=con.scrollHeight-con.scrollTop-con.clientHeight<60;
+ const lines=t.split(/\r?\n/).filter(l=>l&&!SPAM.test(l.trim())).slice(-MAXL),frag=document.createDocumentFragment();
+ for(const l of lines){const d=document.createElement('div');d.textContent=l;
+  d.className=/ERROR|FATAL|Exception/.test(l)?(l.startsWith('[Sneaky]')?'s e':'e'):/WARN/.test(l)?'w':l.startsWith('[Sneaky]')?'s':'';frag.appendChild(d)}
+ con.appendChild(frag);let extra=con.childElementCount-MAXL;while(extra-->0)con.firstChild.remove();
+ if(near)con.scrollTop=con.scrollHeight}
+function setState(s){st=s;play.disabled=s==='busy';play.classList.toggle('stop',s==='playing');
+ play.querySelector('span').textContent=s==='busy'?'Préparation…':s==='playing'?'Arrêter le jeu':'Jouer'}
+play.onclick=()=>{if(st==='playing')return sneaky.stop();if(!account)return openLogin();sneaky.play({ram:+r.value})};
+sneaky.on('log',log);sneaky.on('state',setState);
+sneaky.on('prog',p=>{const w=$('pw');if(!p){w.style.display='none';return}w.style.display='block';
+ w.querySelector('i').style.width=Math.round(p.ratio*100)+'%';w.querySelector('span').textContent=`${p.label} · ${Math.round(p.ratio*100)} %`});
+/* ---- Modrinth ---- */
+const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!==undefined)e.textContent=x;return e};
+const icon=u=>{if(u&&u.startsWith('https://')){const i=el('img');i.src=u;i.alt='';i.loading='lazy';i.onerror=()=>i.replaceWith(el('div','ph'));return i}return el('div','ph')};
+const fmt=n=>n>=1e6?(n/1e6).toFixed(1)+' M':n>=1e3?Math.round(n/1e3)+' k':String(n);
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{mt=b.dataset.t;document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===b));
+ $('hint').textContent=mt==='resourcepack'?'Après l’installation, active le pack dans Minecraft : Options > Packs de ressources.':'';renderInst();search(true)});
+$('q').oninput=()=>{clearTimeout(timer);timer=setTimeout(()=>search(true),350)};
+async function search(reset){const type=mt,query=$('q').value.trim(),res=$('res');
+ if(reset){hits=[];res.replaceChildren(el('div','msg','Recherche…'));$('more').style.display='none'}
+ const j=await sneaky.mrSearch({type,query,offset:hits.length});if(type!==mt||query!==$('q').value.trim())return;
+ if(j.error){res.replaceChildren(el('div','msg e','Modrinth indisponible : '+j.error));return}
+ hits=hits.concat(j.hits);total=j.total;renderRes()}
+function renderRes(){const res=$('res');res.replaceChildren();$('cnt').textContent=total?'· '+total+' résultats':'';
+ if(!hits.length){res.append(el('div','msg','Aucun résultat pour cette version du jeu.'));$('more').style.display='none';return}
+ const have=new Set(inst[mt].map(e=>e.id).filter(Boolean));
+ for(const h of hits){const row=el('div','item'),tx=el('div','tx'),b=el('button','small');
+  tx.append(el('b','',h.title),el('i','',h.author+' · '+fmt(h.downloads)+' téléch.'),el('p','',h.desc));
+  if(have.has(h.id)){b.textContent='Installé';b.disabled=true}else{b.textContent='Installer';b.onclick=()=>install(h,b)}
+  row.append(icon(h.icon),tx,b);res.append(row)}
+ $('more').style.display=hits.length<total?'inline-block':'none'}
+$('more').onclick=()=>search(false);
+async function install(h,b){if(busyMod)return;busyMod=true;b.disabled=true;b.textContent='Installation…';
+ const r2=await sneaky.mrInstall({type:mt,id:h.id,title:h.title,icon:h.icon});busyMod=false;
+ if(r2&&r2.error){log('[Sneaky] ERROR '+r2.error);b.disabled=false;b.textContent='Réessayer';b.title=r2.error}
+ await loadInst()}
+async function loadInst(){const l=await sneaky.mrList();if(l.error){$('inst').replaceChildren(el('div','msg e',l.error));return}inst=l;renderInst();if(hits.length)renderRes()}
+function renderInst(){const box=$('inst');box.replaceChildren();const list=inst[mt];
+ if(!list.length){box.append(el('div','msg','Rien d’installé pour l’instant.'));return}
+ for(const e of list){const row=el('div','item'),tx=el('div','tx');tx.append(el('b','',e.title),el('i','',e.file));row.append(icon(e.icon),tx);
+  if(e.locked)row.append(el('span','lock','Serveur'));else{const d=el('button','small','Retirer');d.style.minWidth='0';d.onclick=async()=>{d.disabled=true;const x=await sneaky.mrRemove({type:mt,file:e.file});if(x&&x.error)log('[Sneaky] ERROR '+x.error);await loadInst()};row.append(d)}
+  box.append(row)}}
+/* ---- serveur & discord ---- */
+function setSrv(s){const on=s&&s.online;if(s&&s.ip){$('sip').textContent=s.ip;lastIp=s.ip}$('dot').className='dot '+(on?'on':'off');$('sst').textContent=on?'Serveur en ligne':'Serveur hors ligne';
+ $('sply').textContent=on?s.players.online+' / '+s.players.max+' joueurs':'';
+ const m=[];if(on){if(s.version)m.push(s.version);m.push(s.ping+' ms');if(s.players.sample.length)m.push('Connectés : '+s.players.sample.join(', '));if(s.motd)m.unshift(s.motd)}
+ $('smeta').textContent=m.join(' · ');
+ const L=on&&s.live,q=$('slive');q.innerHTML='';
+ if(L){const chip=(t,v,c)=>{const e=document.createElement('span');e.className='chip'+(c?' '+c:'');e.textContent=t+' '+v;q.append(e)};
+  if(L.tps!=null)chip('TPS',L.tps.toFixed(1),L.tps>=19?'ok':L.tps>=15?'mid':'bad');
+  if(L.mspt!=null)chip('MSPT',L.mspt.toFixed(1)+' ms',L.mspt<=40?'ok':L.mspt<=50?'mid':'bad');
+  chip('Ping',s.ping+' ms',s.ping<80?'ok':s.ping<150?'mid':'bad');
+  if(L.cpu!=null)chip('CPU',L.cpu+' %');
+  if(L.ramMb!=null)chip('RAM',(L.ramMb/1024).toFixed(1)+' / '+(L.ramMaxMb/1024).toFixed(0)+' Go');
+  if(L.since){const mn=Math.max(0,Math.floor((Date.now()-L.since)/60000));chip('Uptime',mn>=60?Math.floor(mn/60)+' h '+String(mn%60).padStart(2,'0'):mn+' min')}}}
+async function refreshSrv(){try{setSrv(await sneaky.serverStatus())}catch{setSrv({online:false})}}
+$('dc').onclick=()=>sneaky.discord();
+$('cip').onclick=()=>{sneaky.copyIp();const b=$('cip');b.textContent='Copiée !';setTimeout(()=>b.textContent='Copier l’IP',1500)};
+setInterval(refreshSrv,15000);
+/* ---- panel admin : versions, news, IP ---- */
+const HERO0='../assets/saison.png';let lastIp='';
+function applyPack(p){if(!p)return;$('ver').textContent=p.version;
+ if(p.statusIp){$('sip').textContent=p.statusIp;if(lastIp&&lastIp!==p.statusIp)refreshSrv();lastIp=p.statusIp}
+ if(p.synced&&p.news){$('newsT').textContent=p.news.title;$('newsB').textContent=p.news.text;$('newsB').style.display=p.news.text?'block':'none';
+  const img=$('hero'),want=p.news.image||HERO0;if(img.dataset.src!==want){img.dataset.src=want;img.src=want}}}
+sneaky.on('pack',applyPack);
+sneaky.on('upd',u=>{let b=document.getElementById('updb');if(!b){b=document.createElement('div');b.id='updb';b.style.cssText='position:fixed;right:14px;bottom:14px;z-index:99;padding:8px 14px;border-radius:10px;background:#1b1230;color:#fff;font:600 12px Inter,sans-serif;border:1px solid #ff4fa3';document.body.appendChild(b)}b.textContent=u.state==='ready'?'Mise à jour '+u.version+' prête — installée à la fermeture du jeu':'Mise à jour… '+(u.percent||0)+'%'});
+setInterval(()=>sneaky.packRefresh().then(applyPack),10*60*1000);
+/* ---- init ---- */
+sneaky.init().then(i=>{account=i.account;r.value=Math.min(12,Math.max(2,i.ram));$('ver').textContent=i.version;$('auto').checked=!!i.autostart;who();bub();$('sip').textContent=i.statusIp;lastIp=i.statusIp;refreshSrv();applyPack(i.pack);sneaky.packRefresh().then(applyPack);
+ log('[Sneaky] Prêt. '+(i.installed?'Jeu installé.':'Premier lancement : Java et le loader seront installés dans le dossier du launcher.'));
+ if(!account)openLogin()});
+
+/* ---- splash ---- */
+(function(){const sp=$('splash');
+ for(let i=0;i<22;i++){const e=document.createElement('i');e.className='ember';e.style.left=(Math.random()*100)+'%';e.style.setProperty('--dx',(Math.random()*120-60)+'px');
+  e.style.animationDuration=(3+Math.random()*3)+'s';e.style.animationDelay=(Math.random()*3)+'s';const T=window.sneakyTheme||{};const pal=T.embers||['#ff8a1f','#ff4a1f','#ffd23f'];e.style.background=pal[i%pal.length];if(T.snow){e.style.bottom='auto';e.style.top='-10px';e.style.animationName='spSnow';e.style.borderRadius='0'}e.style.width=e.style.height=(4+Math.floor(Math.random()*3)*2)+'px';sp.appendChild(e)}
+ let gone=false;const end=()=>{if(gone)return;gone=true;sp.classList.add('out');setTimeout(()=>sp.remove(),800)};
+ sp.onclick=end;setTimeout(end,4600)})();
+/* ---- mascotte BC ---- */
+(function(){
+ const box=$('mascot'),img=$('mimg'),bub=$('mbub'),cv=$('mfx'),cx=cv.getContext('2d');cx.imageSmoothingEnabled=false;
+ const SLEEP='../assets/BCsleep.png',UPSET='../assets/BCupset.png';
+ const TXT=['Hé, arrête ça !','Je dors !','Chhhut… Zzz','Hé ! Y en a qui dorment ici !','Mrrrow… laisse-moi tranquille.','Encore cinq minutes…','Tu peux pas aller jouer à la place ?','Aïe ! C’était mon oreille !','J’étais en plein rêve de thon…','Pas touche à la moumoute !','Reviens quand j’ai fini ma sieste.','Je ne suis pas un bouton !','Miaou ?! Non. Dodo.','Je ronronne, je ne réponds pas.','Tu veux que je brûle ton clavier ?','Je suis déjà assez chaud comme ça !','Va miner, laisse-moi dormir.','Un peu de respect pour le chat du serveur.','Même les chats de feu ont besoin de repos.','T’as pas un creeper à embêter ?','Wesh, tu vois pas que je dors ?','Mmh… qui ose me réveiller ?','Rends-moi mon coussin de lave !','Tss… les humains…','Oh non, encore toi.','Je te mets un coup de patte, je te préviens.','Grrr… SneakySMP, ça se mérite, le calme.','Zzz… quoi ? Hein ? Non !','Va lancer le jeu plutôt !','Ça va, ça va, je suis réveillé… presque.'];
+ const RARE=['Bon. Tu l’auras voulu. *ouvre un œil*','Tu sais que je compte les clics ?','Ok, je boude. Définitivement.','Tu fais ça pour le plaisir ? Moi non.','Prrrt. Raté, je suis déjà réveillé.'];
+ let last=-1,clicks=0,tOut=0,tBub=0;
+ /* son pixel de chat (synthétisé) */
+ let ac=null;
+ function meow(){try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume();
+  const t=ac.currentTime,o=ac.createOscillator(),o2=ac.createOscillator(),g=ac.createGain(),lf=ac.createOscillator(),lg=ac.createGain();
+  o.type='square';o2.type='square';
+  const base=520+Math.random()*120,pk=base*1.75,end=base*.8;
+  [o,o2].forEach((x,i)=>{const m=i?1.5:1;x.frequency.setValueAtTime(base*m*.8,t);x.frequency.exponentialRampToValueAtTime(pk*m,t+.12);x.frequency.exponentialRampToValueAtTime(end*m,t+.38)});
+  lf.frequency.value=22;lg.gain.value=18;lf.connect(lg);lg.connect(o.frequency);
+  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.07,t+.03);g.gain.setValueAtTime(.07,t+.28);g.gain.linearRampToValueAtTime(0,t+.4);
+  const g2=ac.createGain();g2.gain.value=.4;o.connect(g);o2.connect(g2);g2.connect(g);g.connect(ac.destination);
+  o.start(t);o2.start(t);lf.start(t);o.stop(t+.42);o2.stop(t+.42);lf.stop(t+.42)}catch(e){}}
+ box.onclick=()=>{
+  clicks++;let m;
+  if(clicks%12===0)m=RARE[Math.floor(Math.random()*RARE.length)];
+  else{let i;do{i=Math.floor(Math.random()*TXT.length)}while(i===last&&TXT.length>1);last=i;m=TXT[i]}
+  bub.textContent=m;bub.classList.add('on');img.src=UPSET;box.classList.add('up');
+  box.classList.remove('shake');void box.offsetWidth;box.classList.add('shake');meow();
+  clearTimeout(tOut);clearTimeout(tBub);
+  const d=1700+m.length*40;
+  tBub=setTimeout(()=>bub.classList.remove('on'),d);
+  tOut=setTimeout(()=>{img.src=SLEEP;box.classList.remove('up','shake')},d+250)};
+ /* particules feu + fumée (canvas 64x40, le chat est décalé de 8px vers le bas) */
+ const OY=8,TOP=[-1,-1,-1,5,4,4,4,5,6,7,7,8,7,7,7,7,6,2,2,1,1,1,1,3,7,12,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,14,14,15,16,17,19,-1,-1];
+ const fire=new Image(),smoke=new Image();fire.src='../assets/fire.png';smoke.src='../assets/smoke.png';
+ let sm=null; /* fumée teintée gris-violet : 8 frames de 8x8 */
+ smoke.onload=()=>{sm=document.createElement('canvas');sm.width=64;sm.height=8;const c=sm.getContext('2d');c.drawImage(smoke,0,0);c.globalCompositeOperation='source-atop';c.fillStyle='#a79bb8';c.fillRect(0,0,64,8)};
+ const P=[];let acc=0,prev=performance.now();
+ function spawn(){const up=box.classList.contains('up');
+  const x=3+Math.floor(Math.random()*58);if(TOP[x]<0)return;
+  const y=TOP[x]+OY;
+  if(Math.random()<(up?.9:.55))P.push({k:'f',x:x-2+Math.round(Math.random()*2),y:y-6,vy:-(up?9:5)-Math.random()*4,life:0,max:(up?.55:.8)+Math.random()*.3,flip:Math.random()<.5,sc:Math.random()<.35?1:.75});
+  if(Math.random()<(up?.6:.35))P.push({k:'s',x:x-3+Math.random()*2,y:y-6,vy:-(6+Math.random()*4),vx:(Math.random()-.5)*5,life:0,max:1.6+Math.random()*.8})}
+ function frame(now){const dt=Math.min(.05,(now-prev)/1000);prev=now;
+  if(document.hidden||!$('home').classList.contains('on')){requestAnimationFrame(frame);return}
+  acc+=dt*(box.classList.contains('up')?16:9);while(acc>=1){acc--;spawn()}
+  cx.clearRect(0,0,64,40);
+  for(let i=P.length-1;i>=0;i--){const p=P[i];p.life+=dt;if(p.life>=p.max){P.splice(i,1);continue}
+   p.y+=p.vy*dt;if(p.vx)p.x+=p.vx*dt;const t=p.life/p.max;
+   if(p.k==='s'&&sm){const f=Math.min(7,Math.floor(t*8));cx.globalAlpha=.75*(1-t*t);cx.drawImage(sm,f*8,0,8,8,Math.round(p.x),Math.round(p.y-4),8,8)}
+   else if(p.k==='f'){const w=Math.max(2,Math.round(4*p.sc)),h=Math.max(3,Math.round(8*p.sc*(1-t*.6)));cx.globalAlpha=1-t*t;
+    cx.save();if(p.flip){cx.translate(Math.round(p.x)+w,0);cx.scale(-1,1);cx.drawImage(fire,0,0,4,8,0,Math.round(p.y),w,h)}else cx.drawImage(fire,0,0,4,8,Math.round(p.x),Math.round(p.y),w,h);cx.restore()}}
+  cx.globalAlpha=1;requestAnimationFrame(frame)}
+ requestAnimationFrame(frame);
+})();
+</script></body></html>

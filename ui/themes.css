@@ -1,0 +1,59 @@
+/* ===== Thèmes saisonniers de Sneaky =====
+   halloween (octobre / code "scary"), christmas (décembre / code "christmas"), pride (juin / code "pride")
+   Les variables par défaut sont dans index.html (:root). */
+
+/* ---------- Halloween : orange + chauves-souris ---------- */
+html[data-theme="halloween"]{
+  --bg:#0c0705;--panel:#170e08;--panel2:#22150b;--hover:#301d0e;--line:rgba(255,200,150,.08);--line2:rgba(255,200,150,.14);
+  --txt:#fbeee0;--dim:#a8907c;--acc:#ff7a1a;--acc2:#ffb066;--ink:#080403;
+  --acc-rgb:255,122,26;--play-a:#ffa21f;--play-b:#ee5a00;--play-ink:#2a0f00;--play-rgb:255,110,10;
+  --splash:#4a1d04;--hero-a:#4a1d04;--hero-b:#1c0c04;--glow:255,110,30;
+  --aur1:255,122,26;--aur2:255,60,0;--aur3:150,60,255;
+  --logo-filter:hue-rotate(95deg) saturate(1.15) brightness(1.02);
+}
+html[data-theme="halloween"] .news h3::before{content:"🎃 "}
+
+/* ---------- Noël : bleu et blanc + neige ---------- */
+html[data-theme="christmas"]{
+  --bg:#060b1a;--panel:#0b1530;--panel2:#12214a;--hover:#1a2f66;--line:rgba(200,225,255,.09);--line2:rgba(200,225,255,.16);
+  --txt:#f1f7ff;--dim:#8ea6cf;--acc:#4da3ff;--acc2:#c3e0ff;--ink:#040813;
+  --acc-rgb:77,163,255;--play-a:#ffffff;--play-b:#a9d2ff;--play-ink:#0a2350;--play-rgb:150,200,255;
+  --splash:#12306b;--hero-a:#12306b;--hero-b:#081330;--glow:140,200,255;
+  --aur1:77,163,255;--aur2:210,230,255;--aur3:60,120,255;
+  --logo-filter:hue-rotate(-95deg) saturate(1.1) brightness(1.08);
+}
+html[data-theme="christmas"] #play{text-shadow:0 1px 0 rgba(255,255,255,.6)}
+html[data-theme="christmas"] .news h3::before{content:"❄ "}
+
+/* ---------- Pride : arc-en-ciel ---------- */
+html[data-theme="pride"]{
+  --bg:#0b0813;--acc:#ff5fa8;--acc2:#ffb8dc;--acc-rgb:255,95,168;--play-rgb:255,95,168;--play-ink:#fff;
+  --splash:#3a1766;--hero-a:#3a1766;--hero-b:#150b2c;--glow:255,95,168;--aur1:255,95,168;--aur2:46,155,255;--aur3:255,225,53;
+  --rainbow:linear-gradient(90deg,#ff3b3b,#ff9d2e,#ffe135,#3ddc4a,#2e9bff,#a24bff);
+  --rainbow-loop:linear-gradient(90deg,#ff3b3b,#ff9d2e,#ffe135,#3ddc4a,#2e9bff,#a24bff,#ff3b3b);
+  --rainbow-v:linear-gradient(180deg,#ff3b3b,#ff9d2e,#ffe135,#3ddc4a,#2e9bff,#a24bff);
+}
+html[data-theme="pride"] body::before{content:"";position:fixed;left:0;right:0;top:0;height:4px;z-index:30;background:var(--rainbow)}
+html[data-theme="pride"] #play{background:var(--rainbow-loop);background-size:200% 100%;animation:prideShift 6s linear infinite;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.55);box-shadow:0 8px 24px -8px rgba(255,95,168,.55)}
+html[data-theme="pride"] #play.stop{background:linear-gradient(135deg,#ff6b8f,#d0305a);animation:none;text-shadow:none}
+html[data-theme="pride"] #play:disabled{animation:none}
+html[data-theme="pride"] .nav.on::before{background:var(--rainbow-v)}
+html[data-theme="pride"] #pw i{background:var(--rainbow);opacity:.7}
+html[data-theme="pride"] section h2{background:var(--rainbow);-webkit-background-clip:text;background-clip:text;color:transparent;width:fit-content}
+html[data-theme="pride"] .hero{border-color:transparent;background:linear-gradient(var(--hero-b),var(--hero-b)) padding-box,var(--rainbow) border-box}
+html[data-theme="pride"] #bub{background:var(--rainbow);text-shadow:0 1px 2px rgba(0,0,0,.5)}
+html[data-theme="pride"] .news h3::before{content:"🏳️‍🌈 "}
+@keyframes prideShift{to{background-position:-200% 0}}
+
+/* ---------- Splash : la neige tombe au lieu des braises ---------- */
+@keyframes spSnow{0%{opacity:0;transform:translate(0,0)}15%{opacity:.9}100%{opacity:0;transform:translate(var(--dx),105vh)}}
+
+/* ---------- Calque d'effets (chauves-souris / neige) ---------- */
+#fx{position:fixed;inset:0;width:100vw;height:100vh;z-index:15;pointer-events:none;image-rendering:pixelated}
+html[data-theme="halloween"] #fx{filter:drop-shadow(0 0 3px rgba(255,130,30,.85))}
+html[data-theme="christmas"] #fx{filter:drop-shadow(0 0 3px rgba(150,200,255,.7))}
+@media (prefers-reduced-motion:reduce){#fx{display:none}}
+
+/* ---------- Petit message quand on débloque un thème secret ---------- */
+#themeToast{position:fixed;left:50%;bottom:28px;z-index:200;transform:translate(-50%,16px);padding:10px 18px;border-radius:999px;background:var(--panel2);border:1px solid var(--acc);color:var(--txt);font-size:13px;font-weight:600;box-shadow:0 12px 36px -10px #000,0 0 0 4px rgba(var(--acc-rgb),.16);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s}
+#themeToast.on{opacity:1;transform:translate(-50%,0)}
