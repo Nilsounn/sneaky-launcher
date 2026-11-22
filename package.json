@@ -67,7 +67,8 @@
       {
         "provider": "github",
         "owner": "Nilsounn",
-        "repo": "sneaky-launcher"
+        "repo": "sneaky-launcher",
+        "releaseType": "release"
       }
     ]
   }
