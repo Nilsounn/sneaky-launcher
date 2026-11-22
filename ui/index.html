@@ -314,7 +314,31 @@ function applyPack(p){if(!p)return;$('ver').textContent=p.version;
  if(p.synced&&p.news){$('newsT').textContent=p.news.title;$('newsB').textContent=p.news.text;$('newsB').style.display=p.news.text?'block':'none';
   const img=$('hero'),want=p.news.image||HERO0;if(img.dataset.src!==want){img.dataset.src=want;img.src=want}}}
 sneaky.on('pack',applyPack);
-sneaky.on('upd',u=>{let b=document.getElementById('updb');if(!b){b=document.createElement('div');b.id='updb';b.style.cssText='position:fixed;right:14px;bottom:14px;z-index:99;padding:8px 14px;border-radius:10px;background:#1b1230;color:#fff;font:600 12px Inter,sans-serif;border:1px solid #ff4fa3';document.body.appendChild(b)}b.textContent=u.state==='ready'?'Mise à jour '+u.version+' prête — installée à la fermeture du jeu':'Mise à jour… '+(u.percent||0)+'%'});
+sneaky.on('upd',(()=>{
+const st=document.createElement('style');st.textContent='#updv{position:fixed;right:10px;bottom:5px;z-index:90;font:500 10px Inter,sans-serif;color:rgba(255,255,255,.35);pointer-events:none}#updm{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.65)}#updm.on{display:flex}#updm .c{width:340px;padding:22px;border-radius:14px;background:#1b1230;border:1px solid #ff4fa3;color:#fff;font:500 13px Inter,sans-serif;text-align:center}#updm h3{margin:0 0 8px;font:700 16px Inter,sans-serif}#updm p{margin:0 0 16px;color:#cbbfe0}#updm .bar{height:6px;border-radius:3px;background:rgba(0,0,0,.4);overflow:hidden;margin-bottom:6px;display:none}#updm .bar i{display:block;height:100%;width:0;background:#ff4fa3}#updm button{padding:8px 14px;margin:0 4px;border-radius:8px;border:0;cursor:pointer;font:600 12px Inter,sans-serif;background:#ff4fa3;color:#fff}#updm button.g{background:rgba(255,255,255,.12)}';
+document.head.appendChild(st);
+let cur='';const v=document.createElement('div');v.id='updv';document.body.appendChild(v);
+sneaky.appVersion().then(x=>{cur=x;v.textContent='v'+x}).catch(()=>{});
+const m=document.createElement('div');m.id='updm';
+m.innerHTML='<div class="c"><h3></h3><p></p><div class="bar"><i></i></div><button class="a"></button><button class="g">Plus tard</button></div>';
+document.body.appendChild(m);
+const q=s=>m.querySelector(s),h=q('h3'),p=q('p'),bar=q('.bar'),fill=q('.bar i'),a=q('button.a'),g=q('button.g');
+let state='';
+a.onclick=async()=>{
+  if(state==='available'){render({state:'downloading',percent:0});sneaky.updDownload()}
+  else if(state==='ready'){const ok=await sneaky.updInstall();if(!ok)p.textContent='Ferme Minecraft avant de redémarrer le launcher.'}
+};
+g.onclick=()=>m.classList.remove('on');
+function render(u){
+  state=u.state;m.classList.add('on');
+  const busy=state==='downloading';
+  bar.style.display=busy?'block':'none';a.style.display=(busy||state==='error')?'none':'';g.style.display=busy?'none':'';
+  if(state==='available'){h.textContent='Mise à jour disponible';p.textContent='La version '+u.version+' est disponible (tu as la '+cur+').';a.textContent='Mettre à jour'}
+  else if(busy){h.textContent='Téléchargement…';p.textContent=(u.percent||0)+' %';fill.style.width=(u.percent||0)+'%'}
+  else if(state==='ready'){h.textContent='Mise à jour prête';p.textContent='Redémarre le launcher pour installer la version '+u.version+'.';a.textContent='Redémarrer et installer';fill.style.width='100%'}
+  else{h.textContent='Échec de la mise à jour';p.textContent='Réessaie plus tard.';g.textContent='Fermer'}
+}
+return render;})());
 setInterval(()=>sneaky.packRefresh().then(applyPack),10*60*1000);
 /* ---- init ---- */
 sneaky.init().then(i=>{account=i.account;r.value=Math.min(12,Math.max(2,i.ram));$('ver').textContent=i.version;$('auto').checked=!!i.autostart;who();bub();$('sip').textContent=i.statusIp;lastIp=i.statusIp;refreshSrv();applyPack(i.pack);sneaky.packRefresh().then(applyPack);
