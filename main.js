@@ -168,10 +168,16 @@ app.whenReady().then(() => {
   try {
     presence = require('./discordpresence')({
       clientId: DISCORD_APP_ID,
-      getState: () => proc ? 'playing' : (win && !win.isDestroyed() && win.isVisible() && win.isFocused() && !win.isMinimized() ? 'launcher' : 'none'),
-      getInvite: () => cfg().discord || DISCORD_URL
+      // statut gardé tant que le launcher est ouvert (même sous une autre fenêtre ou réduit) ; supprimé seulement quand il tourne en arrière-plan (fermé dans la zone de notification)
+      getState: () => proc ? 'playing' : (win && !win.isDestroyed() && (win.isVisible() || win.isMinimized()) ? 'launcher' : 'none'),
+      getInvite: () => cfg().discord || DISCORD_URL,
+      getInfo: async () => {
+        const l = await liveStats(), c = cfg();
+        const s = await serverStatus.status(c.statusIp).catch(() => ({ online: false }));
+        return { online: !!s.online, players: s.players || null, ping: s.ping, tps: l && l.tps, mc: c.mc, loader: LN[c.loader] || c.loader };
+      }
     });
-    for (const e of ['focus', 'blur', 'show', 'hide', 'minimize', 'restore']) win.on(e, () => presence.update());
+    for (const e of ['show', 'hide', 'minimize', 'restore']) win.on(e, () => presence.update());
   } catch (e) { console.log('[discord]', e.message); }
   require('./updater')({ send: (c, d) => win && !win.isDestroyed() && win.webContents.send(c, d), isPlaying: () => !!proc });
 });
