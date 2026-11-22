@@ -27,6 +27,8 @@ const PACK_CACHE = path.join(DATA, 'pack-cache.json');   // dernier manifeste re
 const MANIFEST_URL = 'https://sneakylauncher-default-rtdb.europe-west1.firebasedatabase.app/manifest.json'; // intégré en dur : plus rien à modifier à chaque build
 const DEFAULT_CFG = { serverIp: '', statusIp: 'stapling-partners.tun.ply.gg', mc: '1.21.1', loader: 'neoforge', loaderVersion: '21.1.263', manifestUrl: MANIFEST_URL, storageBucket: '' };
 const DISCORD_URL = 'https://discord.gg/Eeu5x9xk4J';
+// >>> ID d'application Discord (discord.com/developers/applications > ton app > General Information > Application ID), nécessaire au statut « Rich Presence »
+const DISCORD_APP_ID = '1536503800217477232';
 const readJson = (f, d) => { try { return { ...d, ...JSON.parse(fs.readFileSync(f, 'utf8')) }; } catch { return { ...d }; } };
 fs.mkdirSync(GAME, { recursive: true });
 if (!fs.existsSync(CFG_FILE)) fs.writeFileSync(CFG_FILE, JSON.stringify(DEFAULT_CFG, null, 2));
@@ -103,11 +105,11 @@ const isInstalled = () => fs.existsSync(path.join(GAME, 'versions', versionId(),
 
 // ---- Fenêtre unique ----
 if (!app.requestSingleInstanceLock()) app.quit();
-let win, tray, proc = null, busy = false, quitting = false, userStopped = false;
+let win, tray, presence, proc = null, busy = false, quitting = false, userStopped = false;
 const showWin = () => { if (!win || win.isDestroyed()) return; if (win.isMinimized()) win.restore(); win.show(); win.focus(); };
 app.on('second-instance', showWin);
 app.on('before-quit', () => { quitting = true; });
-app.on('will-quit', () => { if (tray) tray.destroy(); });
+app.on('will-quit', () => { if (tray) tray.destroy(); if (presence) presence.destroy(); });
 
 const send = (ch, d) => win && !win.isDestroyed() && win.webContents.send(ch, d);
 // Logs : on masque les lignes parasites (chemins de classes / ressources) et on envoie par paquets,
@@ -132,6 +134,7 @@ const sendProg = (p) => { const now = Date.now(); if (p.ratio < 1 && now - lastP
 
 // ---- Zone de notification (les petites icônes à côté de la flèche ^) ----
 function updateTray() {
+  if (presence) presence.update(); // proc a changé : met à jour le statut Discord
   if (!tray) return;
   tray.setContextMenu(Menu.buildFromTemplate([
     { label: 'Ouvrir Sneaky', click: showWin },
@@ -162,6 +165,14 @@ app.whenReady().then(() => {
   if (app.isPackaged) app.setLoginItemSettings({ openAtLogin: autostart() }); // lancement au démarrage de Windows (réglable)
   createWindow();
   createTray();
+  try {
+    presence = require('./discordpresence')({
+      clientId: DISCORD_APP_ID,
+      getState: () => proc ? 'playing' : (win && !win.isDestroyed() && win.isVisible() && win.isFocused() && !win.isMinimized() ? 'launcher' : 'none'),
+      getInvite: () => cfg().discord || DISCORD_URL
+    });
+    for (const e of ['focus', 'blur', 'show', 'hide', 'minimize', 'restore']) win.on(e, () => presence.update());
+  } catch (e) { console.log('[discord]', e.message); }
   require('./updater')({ send: (c, d) => win && !win.isDestroyed() && win.webContents.send(c, d), isPlaying: () => !!proc });
 });
 app.on('window-all-closed', () => { if (proc) proc.kill(); app.quit(); });
