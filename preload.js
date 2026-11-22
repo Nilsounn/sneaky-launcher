@@ -14,5 +14,6 @@ contextBridge.exposeInMainWorld('sneaky', {
   discord: () => ipcRenderer.send('discord'),
   copyIp: () => ipcRenderer.send('copy-ip'),
   authMs: inv('auth:ms'), authOffline: inv('auth:offline'), authLogout: inv('auth:logout'), authUuid: inv('auth:uuid'),
+  appVersion: () => ipcRenderer.invoke('app:version'), updDownload: () => ipcRenderer.invoke('upd:download'), updInstall: () => ipcRenderer.invoke('upd:install'),
   mrSearch: inv('mr:search'), mrList: inv('mr:list'), mrInstall: inv('mr:install'), mrRemove: inv('mr:remove')
 });

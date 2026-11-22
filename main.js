@@ -322,6 +322,7 @@ ipcMain.on('theme', (_, t) => {
   if (tray && !tray.isDestroyed()) tray.setImage(img.resize({ width: 32, height: 32 }));
 });
 
+ipcMain.handle('app:version', () => app.getVersion());
 ipcMain.handle('pack:refresh', async () => { const r = await refreshPack(); return { ...packInfo(), ok: r.ok, error: r.error }; });
 ipcMain.handle('settings:autostart', (_, on) => { on = !!on; saveSettings({ autostart: on }); if (app.isPackaged) app.setLoginItemSettings({ openAtLogin: on }); return on; });
 
