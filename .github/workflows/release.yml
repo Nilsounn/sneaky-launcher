@@ -9,6 +9,8 @@ jobs:
     runs-on: windows-latest
     permissions:
       contents: write
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -16,5 +18,8 @@ jobs:
           node-version: 20
       - run: npm install
       - run: npx electron-builder --win --publish always
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publier la release (sortir du brouillon)
+        shell: bash
+        run: |
+          V=$(node -p "require('./package.json').version")
+          gh release edit "v$V" --draft=false --prerelease=false --latest --repo "${{ github.repository }}"
