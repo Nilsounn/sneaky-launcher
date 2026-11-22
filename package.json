@@ -1,6 +1,6 @@
 {
   "name": "sneaky-launcher",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Launcher Minecraft Sneaky SMP",
   "main": "main.js",
   "scripts": {
